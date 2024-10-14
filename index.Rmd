@@ -1,0 +1,61 @@
+---
+title: "Ratio of Two Poisson Distributed Variables"
+author: "Alexander Ondrus"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(ggfortify)
+library(patchwork)
+```
+
+## Distribution of Poisson Average
+
+We use Bayesian inference to construct credible intervals for the average parameter of a Poisson distributed variable. 
+
+$$h(\lambda | x) = \frac{g(\lambda) \cdot f(x | \lambda)}{\int_0^\infty g(t) f(x | t) dt}$$ 
+
+Assume a single observation with a count of $a$. Here I use an improper constant prior of 1. 
+
+$$
+\begin{matrix}
+h(\lambda | a) &=& \frac{1 \cdot f(a | \lambda)}{\int_0^\infty 1\cdot f(a | t) dt} \\ 
+&=& \frac{e^{-\lambda \frac{\lambda^a}{a!}}}{\int_0^\infty e^{-t}\frac{t^a}{a!} dt} \\
+&=& \frac{e^{-\lambda} \lambda^a}{\Gamma(a + 1)} \\
+&=& \frac{1^{a + 1}}{\Gamma(a+1)} \lambda^{(a+1)-1} e^{-1 \cdot \lambda}
+\end{matrix}
+$$
+Thus, a single observation of a count of $a$ for a Poisson-distributed variable gives a $\mathrm{Gamma}(a + 1, 1)$ posterior distribution for $\lambda$.
+
+```{r plot-gamma-dists}
+gen_single_plot_layer <- function(shape){
+ggdistribution(
+dgamma,
+seq(0,100,0.5),
+shape = shape,
+rate = 1
+) + labs(title = paste("Shape =", shape))
+}
+
+shape_patchwork <- (gen_single_plot_layer(1) + gen_single_plot_layer(5) + gen_single_plot_layer(10)) / 
+  (gen_single_plot_layer(30) + gen_single_plot_layer(50) + gen_single_plot_layer(70))
+
+p <- ggdistribution(
+  dgamma,
+  seq(0, 70, 0.5),
+  shape = 1, rate = 1
+)
+for(shape in c(2, 3, 5*(1:5), 10*3:8)){
+  p <- ggdistribution(
+    dgamma,
+    seq(0, 70, 0.5),
+    shape = shape,
+    rate = 1,
+    p = p
+  )
+}
+```
+
