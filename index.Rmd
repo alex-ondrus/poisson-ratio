@@ -12,10 +12,10 @@ library(ggfortify)
 library(patchwork)
 
 gen_single_plot_layer <- function(count_obs, confidence) {
-  shape <- count_obs
+  shape <- count_obs + 1
   lower_bound <- qgamma(
     p = (1 - confidence) / 2,
-    shape = count_obs,
+    shape = shape,
     rate = 1
   ) %>%
     floor()
@@ -35,7 +35,7 @@ gen_single_plot_layer <- function(count_obs, confidence) {
     fill = "red"
   ) +
     labs(title = paste(
-      paste("Shape =", shape),
+      paste("Count =", count_obs),
       paste("Confidence =", confidence),
       sep = "\n"
     )) +
@@ -99,12 +99,12 @@ poisson_ratio <- function(count1, count2, confidence){
   prob_vector <- c((1 - confidence) / 2, 1 - ((1 - confidence)/2))
   count1_bounds <- qgamma(
     prob_vector,
-    shape = count1,
+    shape = count1 + 1,
     rate = 1
   )
   count2_bounds <- qgamma(
     prob_vector,
-    shape = count2,
+    shape = count2 + 1,
     rate = 1
   )
   
@@ -124,7 +124,7 @@ poisson_ratio <- function(count1, count2, confidence){
 
 ### Example Calculation
 
-Suppose that a given process observed a count of 1354 last year and after going through a dramatic change and observed a count of 609 this year. Construct a 90% credible interview for the ratio of true average observations from one year to the next?
+Suppose that a given process observed a count of 1354 last year and after going through a dramatic change and observed a count of 609 this year. Construct a 90% credible interview for the ratio of true average observations from one year to the next.
 
 First, we visualize the credible intervals for each average separately:
 
